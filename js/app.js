@@ -33,9 +33,10 @@ async function copy(text) {
 
 /* ============================== Données de départ ============================== */
 const LEVELS = ['Non vu', 'Lu', 'Fiché', 'Appris', 'Maîtrisé'];
-const PALETTE = ['#C8643B', '#3F6FA3', '#5E8C61', '#8A4F7D', '#D49A2A', '#2F8C8C', '#D0677A', '#4B4F9C'];
-const LEVEL_COLORS = ['#B9AE9E', '#3F6FA3', '#D49A2A', '#2F8C8C', '#5E8C61'];
-const MOMENT_COLORS = { matin: '#D49A2A', journee: '#2F8C8C', soir: '#4B4F9C' };
+const OLD_PALETTE = ['#C8643B', '#3F6FA3', '#5E8C61', '#8A4F7D', '#D49A2A', '#2F8C8C', '#D0677A', '#4B4F9C'];
+const PALETTE = ['#A8583E', '#4A6FA5', '#4F7A5C', '#8A5A83', '#96702A', '#357479', '#A65270', '#5A5F9E'];
+const LEVEL_COLORS = ['#8E8AA6', '#4A6FA5', '#96702A', '#357479', '#4F7A5C'];
+const MOMENT_COLORS = { matin: '#96702A', journee: '#357479', soir: '#5A5F9E' };
 const INTERVALS = [0, 1, 3, 7, 14, 30, 60]; // jours par boîte (répétition espacée)
 const MOMENTS = [['matin', 'Matin'], ['journee', 'Journée'], ['soir', 'Soir']];
 
@@ -89,7 +90,7 @@ function normalize(s) {
   const d = seed();
   for (const k of Object.keys(d)) if (s[k] === undefined) s[k] = d[k];
   s.settings = { ...d.settings, ...s.settings };
-  s.subjects.forEach((x, i) => { if (!x.color) x.color = PALETTE[i % PALETTE.length]; });
+  s.subjects.forEach((x, i) => { if (!x.color) x.color = PALETTE[i % PALETTE.length]; else if (OLD_PALETTE.includes(x.color)) x.color = PALETTE[OLD_PALETTE.indexOf(x.color)]; });
   return s;
 }
 
@@ -199,22 +200,32 @@ function startApp() {
   if (sb && user) setInterval(() => pullRemote(), 60000);
 }
 
-const NAV = [['accueil', 'Tableau de bord'], ['matieres', 'Matières'], ['revisions', 'Révisions'], ['entrainement', 'Entraînement'], ['concentration', 'Concentration'], ['habitudes', 'Habitudes'], ['ressources', 'Ressources']];
+const NAV = [['accueil', "Aujourd'hui"], ['matieres', 'Matières'], ['revisions', 'Révisions'], ['entrainement', 'Entraînement'], ['concentration', 'Concentration'], ['habitudes', 'Habitudes'], ['ressources', 'Ressources']];
 const ICON_SETTINGS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
 
+const NAV_ICONS = {
+  accueil: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  matieres: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/>',
+  revisions: '<rect x="3" y="6" width="14" height="14" rx="3"/><path d="M7 3h11a3 3 0 0 1 3 3v11"/>',
+  entrainement: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>',
+  concentration: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  habitudes: '<circle cx="12" cy="12" r="9"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+  ressources: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+};
+const navIcon = k => `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${NAV_ICONS[k]}</svg>`;
 function shell() {
   $('#app').innerHTML = `
-    <div class="topstrip">
-      <span>Licence 3 · Droit</span>
-      <span id="strip-mid">${esc(new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }))}</span>
-      <span class="pill" id="sync"></span>
-    </div>
-    <header class="hdr">
-      <a class="logo" href="#/accueil" id="logo"></a>
-      <nav class="nav" id="nav">${NAV.map(([k, l]) => `<a href="#/${k}" data-nav="${k}">${l}</a>`).join('')}</nav>
-      <div class="tools"><a class="iconbtn" href="#/reglages" title="Réglages">${ICON_SETTINGS}</a></div>
-    </header>
-    <main id="view"></main>`;
+    <div class="layout">
+      <aside class="side">
+        <a class="logo" href="#/accueil" id="logo"></a>
+        <nav class="nav" id="nav">${NAV.map(([k, l]) => `<a href="#/${k}" data-nav="${k}">${navIcon(k)}<span>${l}</span></a>`).join('')}</nav>
+        <div class="side-foot">
+          <a class="side-link" href="#/reglages" data-nav="reglages">${ICON_SETTINGS}<span>Réglages</span></a>
+          <span class="pill" id="sync"></span>
+        </div>
+      </aside>
+      <main id="view"></main>
+    </div>`;
   paintSync();
 }
 
@@ -242,7 +253,7 @@ function dueTag(due, done) {
   return `<span class="tag">${fmtDate(due)}</span>`;
 }
 const bar = (pct, cls = '', color = '') => `<div class="bar ${cls}"><i style="width:${clamp(pct ?? 0, 0, 100)}%;${color ? `background:${color}` : ''}"></i></div>`;
-const colorOf = id => subj(id)?.color || '#8B7B69';
+const colorOf = id => subj(id)?.color || '#8E8AA6';
 const dotOf = id => id ? `<i class="sdot" style="background:${colorOf(id)}"></i>` : '';
 const subjOptions = (val, none = 'Aucune / générale') => `${none !== null ? `<option value="">${none}</option>` : ''}${S.subjects.map(s => `<option value="${s.id}" ${s.id === val ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}`;
 const partOptions = (sid, val) => `<option value="">Toute la matière</option>${(subj(sid)?.parts || []).map(p => `<option value="${p.id}" ${p.id === val ? 'selected' : ''}>${esc(p.title)}</option>`).join('')}`;
@@ -279,112 +290,112 @@ function route() { return location.hash.replace(/^#\/?/, '').split('/').filter(B
 function render() {
   if (!S || !$('#view')) return;
   const r = route(); const page = r[0] || 'accueil';
-  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.dataset.nav === page));
-  $('#logo').textContent = (S.settings.name || 'Révisions').toUpperCase();
+  document.querySelectorAll('.side [data-nav]').forEach(a => a.classList.toggle('on', a.dataset.nav === page));
+  $('#logo').textContent = S.settings.name || 'Révisions';
   const views = { accueil: vDashboard, matieres: vMatieres, revisions: vRevisions, entrainement: vEntrainement, concentration: vConcentration, habitudes: vHabitudes, ressources: vRessources, reglages: vReglages };
   const v = views[page] || vDashboard;
   $('#view').innerHTML = v(r);
 }
 
 /* ============================== Tableau de bord ============================== */
+function planSteps() {
+  const t = today(); const steps = [];
+  const due = dueCards();
+  if (due.length) {
+    const subs = [...new Set(due.map(c => subjName(c.subjectId)))];
+    steps.push({ title: `Réviser ${due.length} carte${due.length > 1 ? 's' : ''}`, sub: `${subs.slice(0, 3).join(', ')} · environ ${Math.max(2, Math.round(due.length * 0.75))} min`, href: '#/revisions/session', cta: 'Commencer' });
+  }
+  const open = S.tasks.filter(x => !x.done).sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999') || PRIO_RANK[a.priority] - PRIO_RANK[b.priority]);
+  if (open[0]) {
+    const x = open[0]; const d = x.due ? diffDays(t, x.due) : null;
+    const when = d === null ? '' : d < 0 ? `en retard de ${-d} j` : d === 0 ? "pour aujourd'hui" : d === 1 ? 'pour demain' : `pour le ${fmtDate(x.due)}`;
+    steps.push({ title: x.title, sub: [x.subjectId ? subjName(x.subjectId) : 'Tâche', when].filter(Boolean).join(' · '), act: 'task-toggle', id: x.id, cta: "C'est fait", sid: x.subjectId });
+  }
+  let target = null;
+  [...S.subjects].sort((a, b) => (a.exam || '9999').localeCompare(b.exam || '9999')).forEach(s => s.parts.forEach(p => { if (p.level <= 2 && (!target || p.level < target.p.level)) target = { s, p }; }));
+  if (target) steps.push({ title: `Avancer : ${target.p.title}`, sub: `${target.s.name} · niveau actuel : ${LEVELS[target.p.level].toLowerCase()}`, href: `#/matieres/${target.s.id}`, cta: 'Ouvrir', sid: target.s.id });
+  if (S.qcm.length) steps.push({ title: 'Faire un QCM', sub: `${S.qcm.length} question${S.qcm.length > 1 ? 's' : ''} disponible${S.qcm.length > 1 ? 's' : ''}`, href: '#/entrainement/qcm', cta: 'Ouvrir' });
+  if (!minutesOn(t)) steps.push({ title: 'Saisir mon temps de travail', sub: "Rien de saisi aujourd'hui", href: '#/concentration', cta: 'Saisir' });
+  return steps.slice(0, 3);
+}
+
 function vDashboard() {
   const t = today(); const h = new Date().getHours();
   const hello = h < 5 || h >= 18 ? 'Bonsoir' : 'Bonjour';
-  const exams = S.subjects.filter(s => s.exam && s.exam >= t).sort((a, b) => a.exam.localeCompare(b.exam));
-  const next = exams[0];
-  const due = dueCards().length;
-  const minToday = minutesOn(t);
+  const next = S.subjects.filter(s => s.exam && s.exam >= t).sort((a, b) => a.exam.localeCompare(b.exam))[0];
   const open = S.tasks.filter(x => !x.done);
-  const late = open.filter(x => x.due && x.due < t);
-  const global = S.subjects.length ? Math.round(avg(S.subjects.map(subjPct))) : 0;
   const prios = [...open].sort((a, b) => {
     const la = a.due && a.due < t ? 0 : 1, lb = b.due && b.due < t ? 0 : 1;
     if (la !== lb) return la - lb;
     if ((a.due || '9') !== (b.due || '9')) return (a.due || '9999').localeCompare(b.due || '9999');
     return PRIO_RANK[a.priority] - PRIO_RANK[b.priority];
-  }).slice(0, 8);
-
+  }).slice(0, 6);
   const horizon = addDays(t, 30);
   const deadlines = [
-    ...S.subjects.filter(s => s.exam && s.exam >= t && s.exam <= horizon).map(s => ({ title: `Examen — ${s.name}`, date: s.exam, exam: true })),
-    ...open.filter(x => x.due && x.due >= t && x.due <= horizon).map(x => ({ title: x.title, date: x.due, sid: x.subjectId })),
-  ].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 7);
-
-  // Révisions ciblées : parties les moins avancées des matières aux examens les plus proches
-  const targets = [];
-  [...S.subjects].sort((a, b) => (a.exam || '9999').localeCompare(b.exam || '9999')).forEach(s => {
-    s.parts.forEach(p => { if (p.level <= 2) targets.push({ s, p }); });
-  });
-  targets.sort((a, b) => a.p.level - b.p.level || (a.s.exam || '9999').localeCompare(b.s.exam || '9999'));
-  const weakCards = S.subjects.map(s => ({ s, n: dueCards(s.id).length })).filter(x => x.n).sort((a, b) => b.n - a.n);
-
-  const habitsDone = (S.habitLog[t] || []).length;
+    ...S.subjects.filter(s => s.exam && s.exam >= t && s.exam <= horizon).map(s => ({ title: `Examen — ${s.name}`, date: s.exam, exam: true, id: s.id, sid: s.id })),
+    ...open.filter(x => x.due && x.due >= t && x.due <= horizon).map(x => ({ title: x.title, date: x.due, sid: x.subjectId, id: x.id })),
+  ].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
+  const steps = planSteps();
+  const goal = S.settings.focusGoal; const minToday = minutesOn(t);
+  const days = Array.from({ length: 7 }, (_, i) => addDays(t, i - 6));
+  const mins = days.map(d => minutesOn(d)); const max = Math.max(goal, ...mins, 1);
+  const habitsDone = (S.habitLog[t] || []).filter(id => S.habits.some(hb => hb.id === id)).length;
 
   return `
-  <section class="hero">
-    <div class="hero-l">
-      <div>
-        <div class="label">${esc(new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }))}</div>
-        <h1 style="margin-top:14px">${hello},<br>${esc(S.settings.name)}.</h1>
-        <p>${due ? `${due} carte${due > 1 ? 's' : ''} à réviser aujourd'hui` : 'Aucune carte à réviser aujourd\'hui'}${late.length ? ` · ${late.length} tâche${late.length > 1 ? 's' : ''} en retard` : ''}${minToday ? ` · ${fmtMin(minToday)} de travail aujourd'hui` : ''}.</p>
+  <div class="dash">
+    <div>
+      <div class="label" style="color:var(--accent)">${esc(new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }))}</div>
+      <h1>${hello} ${esc(S.settings.name)}, on s'y met ?</h1>
+      <h3>Ton plan du jour${steps.length ? ` · ${steps.length} étape${steps.length > 1 ? 's' : ''}` : ''}</h3>
+      <div class="steps">
+        ${steps.length ? steps.map((s, i) => `<div class="step ${i === 0 ? 'first' : ''}">
+          <div class="num">${i + 1}</div>
+          <div class="grow"><div class="st">${esc(s.title)}</div><div class="ss">${s.sid ? dotOf(s.sid) : ''}${esc(s.sub)}</div></div>
+          ${s.href ? `<a class="btn ${i === 0 ? 'accent lg' : 'ghost'}" href="${s.href}">${s.cta}</a>` : `<button class="btn ${i === 0 ? 'accent lg' : 'ghost'}" data-act="${s.act}" data-id="${s.id}">${s.cta}</button>`}
+        </div>`).join('') : `<div class="step"><div class="grow"><div class="st">Tout est à jour.</div><div class="ss">Ajoute des cartes, une tâche ou une matière pour préparer la suite.</div></div><a class="btn ghost" href="#/matieres">Mes matières</a></div>`}
       </div>
-      <div class="row wrap">
-        <a class="btn lg accent" href="#/revisions/session">${due ? `Réviser maintenant (${due})` : 'Réviser'}</a>
-        <a class="btn ghost lg" href="#/concentration">Saisir mon temps</a>
+
+      <div class="row between" style="margin:30px 0 12px"><h3>Mes matières</h3><a class="link" href="#/matieres">Tout voir</a></div>
+      <div class="tiles">
+        ${S.subjects.map(s => `<a class="tile" href="#/matieres/${s.id}" style="--c:${s.color}">
+          <div class="n">${dotOf(s.id)}${esc(s.name)}</div>
+          ${bar(subjPct(s), '', s.color)}
+          <div class="row between small muted" style="margin-top:8px"><span>${subjPct(s)} %</span><span>${s.exam ? fmtDate(s.exam) : ''}</span></div></a>`).join('') || `<a class="tile" href="#/matieres"><div class="n">Ajouter ma première matière</div></a>`}
+      </div>
+
+      <div class="grid g2" style="margin-top:30px">
+        <div class="card">
+          <div class="card-head"><h3>À faire</h3><button class="link" data-act="task-add">+ Ajouter</button></div>
+          ${prios.length ? `<ul class="list">${prios.map(taskRow).join('')}</ul>` : '<div class="empty">Rien en attente.</div>'}
+          ${open.length > prios.length ? `<div style="margin-top:12px"><button class="link" data-act="tasks-all">Voir les ${open.length} tâches</button></div>` : ''}
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>Échéances</h3><span class="label">30 jours</span></div>
+          ${deadlines.length ? `<ul class="list">${deadlines.map(d => { const n = diffDays(t, d.date);
+            return `<li>${d.sid ? dotOf(d.sid) : ''}<div class="grow"><div class="title">${d.exam ? `<strong>${esc(d.title)}</strong>` : esc(d.title)}</div></div>
+              <span class="tag ${n <= 3 ? 'urgent' : n <= 7 ? 'soon' : ''}">${n === 0 ? "Aujourd'hui" : `J-${n}`}</span><button class="x" style="font-size:13px" data-act="${d.exam ? 'subj-edit' : 'task-edit'}" data-id="${d.id}" title="Modifier la date">✎</button></li>`; }).join('')}</ul>` : '<div class="empty">Aucune échéance dans les 30 jours.</div>'}
+        </div>
       </div>
     </div>
-    <div class="hero-r" style="--c:${next ? next.color : '#C8643B'}">
-      ${next ? `
-        <div class="label">Prochain examen</div>
-        <div><div class="big">J-${diffDays(t, next.exam)}</div>
-        <div class="serif" style="font-size:24px;margin-top:14px">${esc(next.name)}</div>
-        <div class="small" style="color:#A99D8C;margin-top:4px">${fmtDateY(next.exam)}</div></div>`
-      : `<div class="label">Prochain examen</div><div class="serif" style="font-size:24px">Aucune date d'examen.<br><a href="#/matieres" class="link" style="color:#E9E1D5">Ajouter les dates</a></div>`}
-    </div>
-  </section>
-  <section class="kpis">
-    <div class="kpi" style="--c:#3F6FA3"><div class="label">À réviser</div><div class="v">${due}</div><div class="s">cartes dues aujourd'hui</div></div>
-    <div class="kpi" style="--c:#D49A2A"><div class="label">Travail du jour</div><div class="v">${fmtMin(minToday)}</div><div class="s">objectif ${fmtMin(S.settings.focusGoal)}</div>${bar(minToday / S.settings.focusGoal * 100, '', '#D49A2A')}</div>
-    <div class="kpi ${late.length ? 'alert' : ''}" style="--c:#C8643B"><div class="label">En retard</div><div class="v">${late.length}</div><div class="s">tâche${late.length > 1 ? 's' : ''} dépassée${late.length > 1 ? 's' : ''}</div></div>
-    <div class="kpi" style="--c:#5E8C61"><div class="label">Progression globale</div><div class="v">${global}<small> %</small></div><div class="s">plan + mémorisation</div>${bar(global, '', '#5E8C61')}</div>
-  </section>
 
-  <section class="grid g-main section">
-    <div class="card">
-      <div class="card-head"><h3>Priorités</h3><button class="link" data-act="task-add">+ Ajouter</button></div>
-      ${prios.length ? `<ul class="list">${prios.map(taskRow).join('')}</ul>` : '<div class="empty">Rien en attente. Ajoute tes prochaines tâches.</div>'}
-      ${open.length > prios.length ? `<div style="margin-top:12px"><button class="link" data-act="tasks-all">Voir les ${open.length} tâches</button></div>` : ''}
+    <div class="side-col">
+      ${next ? `<a class="exam-card" href="#/matieres/${next.id}" style="--c:${next.color}">
+        <div class="small" style="font-weight:600">Prochain examen</div>
+        <div class="big">J-${diffDays(t, next.exam)}</div>
+        <div style="font-weight:600;font-size:16px;margin-top:10px">${esc(next.name)}</div>
+        <div class="small">${fmtDateY(next.exam)}</div></a>`
+      : `<a class="exam-card" href="#/matieres"><div class="small" style="font-weight:600">Prochain examen</div><div style="font-weight:600;font-size:16px;margin-top:10px">Aucune date d'examen</div><div class="small">Ajoute-les dans tes matières</div></a>`}
+      <div class="card">
+        <div class="row between"><h3 style="font-size:18px">Temps de travail</h3><span class="small muted">${fmtMin(minToday)} / ${fmtMin(goal)}</span></div>
+        <div class="wk">${days.map((d, i) => `<i class="${mins[i] >= goal ? 'ok' : ''} ${d === t ? 'today' : ''}" style="height:${Math.max(8, mins[i] / max * 100)}%" title="${fmtDate(d)} : ${fmtMin(mins[i])}"></i>`).join('')}</div>
+        <a class="btn" style="width:100%" href="#/concentration">Saisir mon temps</a>
+      </div>
+      <div class="card">
+        <div class="row between" style="margin-bottom:12px"><h3 style="font-size:18px">Habitudes</h3><span class="small muted">${habitsDone} / ${S.habits.length}</span></div>
+        <div class="pills">${S.habits.map(hb => { const on = (S.habitLog[t] || []).includes(hb.id); return `<button class="pill-btn ${on ? 'on' : ''}" aria-pressed="${on}" data-act="habit-toggle" data-id="${hb.id}" data-date="${t}">${esc(hb.name)}</button>`; }).join('') || '<span class="muted small">Aucune habitude.</span>'}</div>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-head"><h3>Échéances</h3><span class="label">30 prochains jours</span></div>
-      ${deadlines.length ? `<ul class="list">${deadlines.map(d => {
-        const n = diffDays(t, d.date);
-        return `<li><div class="grow"><div class="title">${d.exam ? `<strong>${esc(d.title)}</strong>` : esc(d.title)}</div>${d.sid ? `<div class="small muted">${esc(subjName(d.sid))}</div>` : ''}</div>
-          <span class="tag ${n <= 3 ? 'urgent' : n <= 7 ? 'soon' : d.exam ? 'dark' : ''}">${n === 0 ? "Aujourd'hui" : `J-${n}`}</span></li>`;
-      }).join('')}</ul>` : '<div class="empty">Aucune échéance dans les 30 jours.</div>'}
-    </div>
-  </section>
-
-  <section class="band">
-    ${S.subjects.map(s => `<a class="band-item" href="#/matieres/${s.id}" style="--c:${s.color}">
-      <div class="meta">${s.exam ? `Examen ${fmtDate(s.exam)}` : 'Pas de date'}</div>
-      <div class="t">${esc(s.name)}</div>
-      <div><div class="row between small" style="margin-bottom:6px;opacity:.85"><span>Progression</span><span>${subjPct(s)} %</span></div>${bar(subjPct(s))}</div>
-      <div class="go">Ouvrir →</div></a>`).join('') || '<div class="band-item"><div class="t">Aucune matière</div><a class="go" href="#/matieres">Créer →</a></div>'}
-  </section>
-
-  <section class="grid g2 section">
-    <div class="card">
-      <div class="card-head"><h3>Révisions ciblées</h3><a class="link" href="#/revisions">Tout voir</a></div>
-      ${weakCards.length ? `<div class="label" style="margin-bottom:6px">Cartes en attente</div><ul class="list">${weakCards.slice(0, 3).map(x => `<li>${dotOf(x.s.id)}<div class="grow title">${esc(x.s.name)}</div><span class="tag">${x.n} carte${x.n > 1 ? 's' : ''}</span><a class="btn sm" href="#/revisions/session/${x.s.id}">Réviser</a></li>`).join('')}</ul>` : ''}
-      <div class="label" style="margin:${weakCards.length ? '18px' : '0'} 0 6px">Parties les moins avancées</div>
-      ${targets.length ? `<ul class="list">${targets.slice(0, 4).map(({ s, p }) => `<li><div class="grow"><div class="title">${esc(p.title)}</div><div class="small muted">${dotOf(s.id)}${esc(s.name)}</div></div><span class="tag lv" style="--c:${LEVEL_COLORS[p.level]}">${LEVELS[p.level]}</span><a class="link" href="#/matieres/${s.id}">Plan</a></li>`).join('')}</ul>` : '<div class="empty">Tout est au moins fiché. Bravo.</div>'}
-    </div>
-    <div class="card">
-      <div class="card-head"><h3>Habitudes du jour</h3><span class="label">${habitsDone} / ${S.habits.length}</span></div>
-      ${S.habits.length ? `<ul class="list">${S.habits.map(hb => { const on = (S.habitLog[t] || []).includes(hb.id); return `<li class="${on ? 'done' : ''}"><input type="checkbox" class="chk" ${on ? 'checked' : ''} data-act="habit-toggle" data-id="${hb.id}" data-date="${t}"><span class="grow title">${esc(hb.name)}</span><span class="tag lv" style="--c:${MOMENT_COLORS[hb.moment]}">${MOMENTS.find(m => m[0] === hb.moment)?.[1] || ''}</span></li>`; }).join('')}</ul>` : '<div class="empty">Aucune habitude.</div>'}
-    </div>
-  </section>`;
+  </div>`;
 }
 
 function taskRow(x) {
@@ -446,7 +457,7 @@ function vMatiere(id) {
 
   <div class="grid g-main section">
     <div class="card">
-      <div class="card-head"><h3>Plan du cours</h3><span class="label">Clique sur un niveau pour noter ta progression</span></div>
+      <div class="card-head"><h3>Plan du cours</h3>${s.parts.some(p => p.level < 2) ? `<button class="link" data-act="plan-all-fiche" data-sid="${s.id}">Tout est déjà fiché</button>` : '<span class="label">Clique sur un niveau pour noter ta progression</span>'}</div>
       ${s.parts.length ? `<ul class="list plan">${s.parts.map((p, i) => {
         const pc = cardsOf(s.id, p.id); const pm = memOf(pc);
         return `<li>
@@ -466,13 +477,13 @@ function vMatiere(id) {
 
     <div>
       <div class="card">
-        <div class="card-head"><h3>Fiches</h3><button class="link" data-act="fiche-add" data-sid="${s.id}">+ Ajouter</button></div>
+        <div class="card-head"><h3>Fiches <span class="label">· facultatif</span></h3><button class="link" data-act="fiche-add" data-sid="${s.id}">+ Ajouter</button></div>
         ${s.fiches.length ? `<ul class="list">${s.fiches.map(f => `<li style="align-items:flex-start">
           <div class="grow"><div class="title">${esc(f.title)}</div>
             ${f.location ? (/^https?:\/\//.test(f.location) ? `<a class="small" href="${esc(f.location)}" target="_blank" rel="noopener">Ouvrir le lien ↗</a>` : `<div style="margin-top:4px"><span class="path">${esc(f.location)}</span> <button class="link" data-act="copy" data-text="${esc(f.location)}">Copier</button></div>`) : ''}
             ${f.note ? `<div class="small muted" style="margin-top:4px">${esc(f.note)}</div>` : ''}</div>
           <button class="x" style="font-size:13px" data-act="fiche-edit" data-sid="${s.id}" data-id="${f.id}">✎</button>
-        </li>`).join('')}</ul>` : '<div class="empty">Indique où se trouvent tes fiches (dossier, fichier, lien).</div>'}
+        </li>`).join('')}</ul>` : '<div class="empty">Facultatif : note ici où retrouver tes fiches (dossier, fichier, lien). Ça ne compte pas dans la progression.</div>'}
       </div>
       <div class="card" style="margin-top:22px">
         <div class="card-head"><h3>Cartes de révision</h3></div>
@@ -849,7 +860,7 @@ function vConcentration() {
     <div class="card">
       <div class="card-head"><h3>Aujourd'hui</h3><span class="label">Objectif ${fmtMin(goal)}</span></div>
       <div class="serif" style="font-size:54px;line-height:1">${fmtMin(minutesOn(t))}</div>
-      <div style="margin:14px 0 22px">${bar(minutesOn(t) / goal * 100, 'thick', minutesOn(t) >= goal ? '#5E8C61' : '#D49A2A')}</div>
+      <div style="margin:14px 0 22px">${bar(minutesOn(t) / goal * 100, 'thick', minutesOn(t) >= goal ? '#4F7A5C' : '#453F8C')}</div>
       <div class="grid g3" style="gap:0;border-top:1px solid var(--line)">
         <div style="padding-top:14px"><div class="label">7 jours</div><div class="serif" style="font-size:26px">${fmtMin(week)}</div><div class="small muted">obj. ${fmtMin(S.settings.weekGoal)}</div></div>
         <div style="padding-top:14px"><div class="label">Focus moyen</div><div class="serif" style="font-size:26px">${focusAvg ? focusAvg.toFixed(1) : '—'}<span class="small muted"> /5</span></div></div>
@@ -868,7 +879,7 @@ function vConcentration() {
     </div>
     <div class="card">
       <div class="card-head"><h3>Par matière</h3><span class="label">7 jours</span></div>
-      ${bySubj.length ? bySubj.map(x => `<div style="margin-bottom:14px"><div class="row between small"><span>${x.s.id ? dotOf(x.s.id) : ''}${esc(x.s.name)}</span><span>${fmtMin(x.m)}</span></div>${bar(x.m / week * 100, '', x.s.color || '#B9AE9E')}</div>`).join('') : '<div class="empty">Rien de saisi cette semaine.</div>'}
+      ${bySubj.length ? bySubj.map(x => `<div style="margin-bottom:14px"><div class="row between small"><span>${x.s.id ? dotOf(x.s.id) : ''}${esc(x.s.name)}</span><span>${fmtMin(x.m)}</span></div>${bar(x.m / week * 100, '', x.s.color || '#8E8AA6')}</div>`).join('') : '<div class="empty">Rien de saisi cette semaine.</div>'}
     </div>
   </div>
   <div class="card section">
@@ -1005,6 +1016,7 @@ const ACT = {
       S.subjects = S.subjects.filter(x => x.id !== s.id); S.cards = S.cards.filter(c => c.subjectId !== s.id); S.qcm = S.qcm.filter(c => c.subjectId !== s.id);
       commit({ render: false }); location.hash = '#/matieres'; render(); }); }; },
   'part-level': d => { const p = subj(d.sid).parts.find(x => x.id === d.id); p.level = Number(d.level); commit(); },
+  'plan-all-fiche': d => { const s = subj(d.sid); let n = 0; s.parts.forEach(p => { if (p.level < 2) { p.level = 2; n++; } }); commit(); toast(`${n} partie${n > 1 ? 's' : ''} passée${n > 1 ? 's' : ''} en « Fiché »`); },
   'part-rename': d => { const p = subj(d.sid).parts.find(x => x.id === d.id); modal('Renommer la partie', fText('title', 'Titre', p.title, 'required'), fd => { p.title = fd.title.trim(); commit(); }); },
   'part-del': d => { const s = subj(d.sid); const p = s.parts.find(x => x.id === d.id); confirmModal('Supprimer la partie ?', `« ${esc(p.title)} » sera retirée du plan. Les cartes liées restent dans la matière.`, () => { s.parts = s.parts.filter(x => x.id !== d.id); S.cards.forEach(c => { if (c.partId === d.id) c.partId = ''; }); commit(); }); },
   'part-move': d => { const s = subj(d.sid); const i = s.parts.findIndex(x => x.id === d.id); const j = i + Number(d.dir); if (j < 0 || j >= s.parts.length) return; [s.parts[i], s.parts[j]] = [s.parts[j], s.parts[i]]; commit(); },

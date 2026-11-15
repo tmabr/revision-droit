@@ -304,3 +304,141 @@ dialog::backdrop{background:rgba(28,26,23,.45)}
 .stat-row>div{position:relative}
 .opt.right{background:#E3EEDF;border-color:#5E8C61}
 .opt.wrong{background:#F6E1D7;border-color:#C8643B}
+
+/* ============ Design « Studio » (v3) : arrondi, calme, une couleur par matière ============ */
+:root{
+  --cream:#F5F4F9; --paper:#FFFFFF; --sand:#ECEAF4; --line:#E3E0EE; --taupe:#625E7A;
+  --ink:#1F1D36; --ink2:#45425F; --mute:#625E7A; --dark:#1F1D36; --dark2:#2B2850;
+  --terra:#A8583E; --terra-bg:#F6E7E1; --olive:#4F7A5C; --olive-bg:#E4EEE6; --gold:#96702A;
+  --accent:#453F8C;
+  --serif:'Bricolage Grotesque','Inter','Helvetica Neue',Arial,sans-serif;
+  --sans:'Inter','Helvetica Neue',Arial,sans-serif;
+}
+body{font-size:14.5px}
+h1,h2,h3{font-weight:700;letter-spacing:-.01em}
+h1{font-weight:800}
+.label{letter-spacing:.02em;font-size:12.5px;font-weight:600;text-transform:none}
+.empty{font-style:normal;font-family:var(--sans);font-size:14px}
+
+/* Structure : menu latéral */
+.side{position:fixed;left:16px;top:16px;bottom:16px;width:216px;background:var(--ink);border-radius:28px;padding:22px 14px 14px;display:flex;flex-direction:column;box-sizing:border-box;z-index:20}
+.side .logo{color:#fff;font:800 22px var(--serif);letter-spacing:0;padding:2px 12px 20px}
+.side .nav{flex-direction:column;flex-wrap:nowrap;gap:4px;flex:none}
+.side .nav a,.side-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;color:#CFCCE6;font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;text-decoration:none;border:0}
+.side .nav a:hover,.side-link:hover{background:rgba(255,255,255,.08);color:#fff}
+.side .nav a.on,.side-link.on{background:rgba(255,255,255,.16);color:#fff;border:0;font-weight:600}
+.side svg{width:20px;height:20px;flex:none}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:4px}
+#sync{color:#CFCCE6;font-size:12px;padding:8px 14px;display:flex;align-items:center;gap:8px}
+#sync .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+main{margin:0 0 0 248px;max-width:1240px;padding:34px 40px 80px}
+
+/* Boutons, liens, étiquettes */
+.btn{border-radius:999px;font-size:14px;letter-spacing:0;text-transform:none;font-weight:600;padding:11px 20px;background:var(--ink);border:1.5px solid var(--ink);color:#fff}
+.btn:hover{background:#000}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--sand)}
+.btn.sm{padding:7px 14px;font-size:13px}
+.btn.lg{padding:14px 26px;font-size:15px}
+.btn.accent{background:var(--accent);border-color:var(--accent)}
+.btn.accent:hover{background:#37327A}
+.btn.light{background:#fff;color:var(--ink);border-color:#fff}
+.link{text-transform:none;letter-spacing:0;font-size:13px;font-weight:600;color:var(--accent);border-bottom:0}
+.link:hover{color:var(--accent);text-decoration:underline}
+.link.danger{color:var(--terra)}
+.tag{border-radius:999px;text-transform:none;letter-spacing:0;font-size:12px;font-weight:600;padding:3px 10px;border:0;background:var(--sand);color:var(--ink2)}
+.tag.late{background:var(--terra-bg);color:#8A3F28}
+.tag.urgent{background:var(--terra);color:#fff}
+.tag.soon{background:#F3EAD3;color:#6E5214}
+.tag.ok{background:var(--olive-bg);color:#365C42}
+.tag.dark{background:var(--ink);color:#fff}
+.tag.lv{border:0}
+.prio.haute{background:var(--terra)}.prio.moyenne{background:var(--gold)}.prio.basse{background:#8E8AA6}
+
+/* Cartes et blocs */
+.card{border:0;border-radius:24px;padding:24px 26px}
+.section-head{border-bottom:0;padding-bottom:0}
+.stat-row{border:0;border-radius:24px;overflow:hidden}
+.stat-row .v{font-weight:700}
+.bar{height:6px;border-radius:999px;background:var(--sand)}
+.bar>i{border-radius:999px;background:var(--accent)}
+.bar.thick{height:10px}
+.subj-card{border:0;border-radius:24px;box-shadow:inset 0 6px 0 var(--c)}
+.subj-card:hover{box-shadow:inset 0 6px 0 var(--c),0 0 0 2px var(--c)}
+.subj-card .t{font-weight:700;font-size:23px}
+.subj-card .label{color:var(--mute)}
+.subj-card.add{box-shadow:none;border:2px dashed #C9C5DE;font-family:var(--sans);font-size:15px;font-weight:600}
+.chk{border-radius:7px;width:20px;height:20px}
+.chk:checked{background:var(--ink);border-color:var(--ink)}
+input:not(.chk),select,textarea{border-radius:12px}
+dialog{border:0;border-radius:24px}
+.levels{border-radius:999px;overflow:hidden}
+.levels button{text-transform:none;letter-spacing:0;font-size:12px;font-weight:600;padding:6px 11px}
+.flash{border:0;border-radius:28px;box-shadow:inset 0 6px 0 var(--c,var(--accent))}
+.flash .q{font-weight:700}
+.flash>.label:first-child{color:var(--mute)}
+.grades .btn{border-radius:18px}
+.grades .again{background:var(--terra);border-color:var(--terra)}
+.grades .hard{background:#7A5A1E;border-color:#7A5A1E}
+.grades .easy{background:var(--olive);border-color:var(--olive)}
+.opt{border-radius:16px;border:1.5px solid var(--line)}
+.opt.right{background:var(--olive-bg);border-color:var(--olive)}
+.opt.wrong{background:var(--terra-bg);border-color:var(--terra)}
+.explain{border-left:0;border-radius:14px;background:var(--sand)}
+.table th{text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:600}
+.tabs a,.tabs button{text-transform:none;letter-spacing:0;font-size:14px;font-weight:600}
+.tabs .on{border-bottom-color:var(--accent);color:var(--accent)}
+.chart .b{border-radius:8px 8px 0 0;background:#C2BEE3}
+.chart .b.goal-ok{background:var(--accent)}
+.stars span{border-radius:12px}
+.dots button{border-radius:50%}
+.dots button.on{background:var(--c,var(--ink));border-color:var(--c,var(--ink))}
+.quick{border:0;border-radius:24px;overflow:hidden}
+.quick a{box-shadow:none}
+.quick a:hover{background:var(--sand)}
+.quick a .t{color:var(--ink);font-weight:700}
+.search-bar{background:var(--ink);border-radius:24px;margin-bottom:16px}
+.search-bar input,.search-bar select{border-radius:999px;padding-left:16px}
+.path{border-radius:8px}
+.prompt-box{border:0;background:var(--sand);border-radius:14px}
+.note{border-radius:14px}
+#toast{border-radius:999px}
+.kbd{border-radius:6px}
+.login-r{background:var(--ink)}
+.login-box{background:#fff;border-radius:28px}
+.login-l .word{font-weight:800}
+.swatches input:checked+span{border-color:#fff}
+
+/* Accueil : plan du jour */
+.dash{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start}
+.dash h1{font-size:42px;line-height:1.08;margin:4px 0 24px}
+.steps{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.step{background:#fff;border-radius:24px;padding:18px 24px;display:flex;align-items:center;gap:18px}
+.step .grow{flex:1;min-width:0}
+.step.first{box-shadow:inset 0 0 0 2px var(--accent);padding:22px 24px}
+.step .num{width:48px;height:48px;border-radius:50%;background:var(--sand);color:var(--accent);display:grid;place-items:center;font:800 20px var(--serif);flex:none}
+.step.first .num{background:var(--accent);color:#fff}
+.step .st{font:700 18px/1.25 var(--serif)}
+.step.first .st{font-size:21px}
+.step .ss{font-size:13.5px;color:var(--mute);margin-top:3px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile{background:#fff;border-radius:20px;padding:16px 18px;text-decoration:none;display:block}
+.tile:hover{box-shadow:0 0 0 2px var(--c,var(--accent))}
+.tile .n{font-weight:600;font-size:14px;margin-bottom:12px}
+.tile .bar{height:8px}
+.side-col{display:flex;flex-direction:column;gap:16px}
+.exam-card{display:block;text-decoration:none;background:var(--c,var(--ink));color:#fff;border-radius:28px;padding:24px 26px}
+.exam-card:hover{filter:brightness(.94)}
+.exam-card .big{font:800 68px/1 var(--serif);margin-top:8px}
+.wk{display:flex;align-items:flex-end;gap:7px;height:76px;margin:16px 0}
+.wk i{flex:1;background:#D5D2EC;border-radius:7px}
+.wk i.ok{background:var(--accent)}
+.wk i.today{outline:2px solid var(--ink);outline-offset:2px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill-btn{border:0;background:var(--sand);color:var(--ink);font:500 13px var(--sans);padding:9px 14px;border-radius:999px;cursor:pointer}
+.pill-btn:hover{background:#DDD9EE}
+.pill-btn.on{background:var(--ink);color:#fff}
+@media (max-width:1100px){.dash{grid-template-columns:1fr}}
+
+/* Prochain examen : bloc jaune */
+.exam-card{background:#FFD95A;color:#1F1D36}
